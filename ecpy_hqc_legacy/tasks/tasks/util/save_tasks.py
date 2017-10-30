@@ -618,7 +618,7 @@ class SaveFileHDF5Task(SimpleTask):
         """Check that all teh parameters are correct.
 
         """
-        err_path = self.get_error_path
+        err_path = self.get_error_path()
         test, traceback = super(SaveFileHDF5Task, self).check(*args, **kwargs)
         try:
             full_folder_path = self.format_string(self.folder)
@@ -632,8 +632,7 @@ class SaveFileHDF5Task(SimpleTask):
         if os.path.isfile(full_path):
             overwrite = True
             traceback[err_path + '-file'] = \
-                cleandoc('''File already exists, running the measure will
-                override it.''')
+                cleandoc('''File already exists, running the measure will override it.''')
 
         try:
             f = open(full_path, 'ab')
