@@ -44,4 +44,10 @@ enamldef RunAWGView(InstrView): view:
             text := task.switch
             entries_updater << task.list_accessible_database_entries
             tool_tip = EVALUATER_TOOLTIP
+            
+    Label: awgmode:
+        text = 'AWG mode'
+    ObjectCombo: awgmode_val:
+        items << list(task.get_member('mode').items)
+        selected := task.mode
 
