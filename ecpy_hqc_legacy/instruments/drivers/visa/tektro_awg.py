@@ -75,11 +75,25 @@ class AWGChannel(BaseInstrument):
             current_length = 0
         if position > current_length:
             self._AWG.write("SEQuence:LENGth {}".format(position))
-        self._AWG.ask('*ESR?')
+#        self._AWG.ask('*ESR?')
         msg = 'SEQuence:ELEMent{}:WAVeform{} "{}"'
         self._AWG.write(msg.format(position, self._channel, name))
         # ESR bit 5 signal a command error
-        assert int(self._AWG.ask('*ESR?')) & 2**5 == 0, 'Command failed'
+#        assert int(self._AWG.ask('*ESR?')) & 2**5 == 0, 'Command failed'
+
+    @instrument_property    
+    @secure_communication()
+    def channel_sequence(self):
+        """Get whether channel is used by a given sequence
+
+        """
+        with self.secure():
+            output = self._AWG.ask('SEQ:ELEM1:WAV{}?'
+                                    .format(self._channel))
+            if len(output) > 3:
+                return True
+            else:
+                return False
 
     @contextmanager
     def secure(self):
@@ -773,12 +787,16 @@ class AWG(VisaInstrument):
                                  run mode method''').format(value), 80)
             raise VisaTypeError(mess)
 
+    @instrument_property
+    @secure_communication()    
     def delete_all_waveforms(self):
         """Deletes all user-defined waveforms from the currently loaded setup
 
         """
-        self.write('WLIST:WAVEFORM:DELETE ALL')
+        self.write('WLISt:WAVeform:DELete ALL')
 
+    @instrument_property
+    @secure_communication()
     def clear_all_sequences(self):
         """Clear the all sequences played by the AWG.
 
