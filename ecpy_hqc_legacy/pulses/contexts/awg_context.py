@@ -217,7 +217,7 @@ class AWG5014Context(BaseContext):
         if sequence_length - intervals[-1][1] < 256:
             intervals[-1] = (intervals[-1][0], sequence_length + 1)
         
-    def compile_loop(self, sequence, **kwargs):
+    def compile_loop(self, sequence, for_file = False,**kwargs):
         """ Transform a sequence of pulse to a dict of waveform suitable for 
         sequence mode of the AWG
 
@@ -297,7 +297,7 @@ class AWG5014Context(BaseContext):
         
         # fill up the space between start of sequence and first sample of pulse with zero samples
         if intervals[0][0] != 1:
-            zcount = (intervals[0][0] - 1) / zero_length - 1
+            zcount = int((intervals[0][0] - 1) / zero_length) - 1
             zrem = zero_length + (intervals[0][0] - 1) % zero_length
             azrem = np.ones(zrem,dtype=np.uint16)*(2**13)
             mzrem = np.zeros(zrem, dtype = np.int8)
@@ -338,7 +338,7 @@ class AWG5014Context(BaseContext):
                 remaining = sequence_length - interval[1] + 1
             else:
                 remaining = intervals[idx+1][0] - intervals[idx][1]
-            zcount = remaining / zero_length - 1
+            zcount = int(remaining / zero_length) - 1
             zrem = zero_length + remaining % zero_length
             azrem = np.ones(zrem,dtype=np.uint16)*(2**13)
             mzrem = np.zeros(zrem, dtype = np.int8)
@@ -419,25 +419,28 @@ class AWG5014Context(BaseContext):
                     np.logical_not(waveform, waveform)
 
         # Byte arrays to send to the AWG
-        bytes = {}
+        wfs = {}
         already_added = {}
         for channel in used_channels:
-            bytes[int(channel[-1])] = []
+            wfs[int(channel[-1])] = []
             for i in range(len(array_analog[channel])):
                 addr = id(array_analog[channel][i])
                 if addr in already_added:
                     added = already_added[addr]
-                    bytes[int(channel[-1])].append(added)
+                    wfs[int(channel[-1])].append(added)
                     
                 else:
                     waveform_new = array_analog[channel][i] + array_M1[channel][i]*(2**14) +\
                     array_M2[channel][i]*(2**15)
                     aux = np.empty(2*len(waveform_new), dtype=np.uint8)
-                    aux[::2] = waveform_new % 2**8
-                    aux[1::2] = waveform_new // 2**8
-                    byteadded = bytearray(aux)
-                    bytes[int(channel[-1])].append(byteadded)
-                    already_added[addr] = byteadded
+                    if for_file:
+                        wfadded = waveform_new
+                    else:
+                        aux[::2] = waveform_new % 2**8
+                        aux[1::2] = waveform_new // 2**8
+                        wfadded = bytearray(aux)
+                    wfs[int(channel[-1])].append(wfadded)
+                    already_added[addr] = wfadded
 
         # Build sequence infos
         name = self._cache['sequence_name']
@@ -449,7 +452,7 @@ class AWG5014Context(BaseContext):
         for c in used_channels:
             infos['sequence_ch%s' % c[2]] = name + '_' + c
 
-        return True, bytes, repeats, infos, traceback
+        return True, wfs, repeats, infos, traceback
 
     def list_sequence_infos(self):
         """List the sequence infos returned after a successful completion.

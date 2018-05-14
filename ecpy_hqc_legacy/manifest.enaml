@@ -462,3 +462,7 @@ enamldef HqcLegacyManifest(PluginManifest):
                     task = 'run_awg:RunAWGTask'
                     view = 'views.run_awg_views:RunAWGView'
                     instruments = ['ecpy_hqc_legacy.Legacy.AWG']
+                Task:
+                    task = 'get_awg_config_task:GetAWGConfigTask'
+                    view = 'views.get_awg_config_task_view:GetAWGConfigView'
+                    instruments = ['ecpy_hqc_legacy.Legacy.AWG']
