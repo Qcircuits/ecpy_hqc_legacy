@@ -296,7 +296,7 @@ class SaveFileTask(SimpleTask):
     def perform(self):
         """ Collect all data and write them to file.
 
-        """
+        """   
         # Initialisation.
         if not self.initialized:
 
@@ -342,6 +342,7 @@ class SaveFileTask(SimpleTask):
 
         shapes_1D = set()
         shapes_2D = set()
+        shapes_2D_indices = []
         values = []
         for i, v in enumerate(self.saved_values.values()):
             value = self.format_and_eval_string(v)
@@ -351,13 +352,13 @@ class SaveFileTask(SimpleTask):
                     shapes_1D.add(value.shape)
                 elif len(value.shape) == 2:
                     shapes_2D.add(value.shape)
+                    shapes_2D_indices.append(i)
                 else:
                     log = logging.getLogger()
                     msg = ("In {}, impossible to save arrays exceeding two "
                            "dimension. Save file in HDF5 format.")
                     log.error(msg.format(self.name))
                     self.root.should_stop.set()
-
         if shapes_1D:
             if len(shapes_1D) > 1:
                 log = logging.getLogger()
@@ -367,6 +368,7 @@ class SaveFileTask(SimpleTask):
                 self.root.should_stop.set()
             else:
                 length = shapes_1D.pop()
+                shapes_1D.add(length)
 
         if shapes_2D:
             if len(shapes_2D) > 1:
@@ -375,18 +377,24 @@ class SaveFileTask(SimpleTask):
                        "different sizes. Save file in HDF5 format.")
                 log.error(msg.format(self.name))
                 self.root.should_stop.set()
-            elif shapes_1D:
-                if length == shapes_2D[0]:
-                    shape = shapes_2D.pop()
-                else:
-                    log = logging.getLogger()
-                    msg = ("In {}, 1D-arrays and 2D-arrays could not be "
-                           "broadcast together. Save file in HDF5 format.")
-                    log.error(msg.format(self.name))
-                    self.root.should_stop.set()
-            else:
+            else: 
                 shape = shapes_2D.pop()
-
+                shapes_2D.add(shape)
+                if shapes_1D:
+                    shape = shapes_2D.pop()
+                    if length[0] == shape[0]:
+                        pass
+                    elif length[0] == shape[1]:
+                        shape = shape[::-1]
+                        for ii in shapes_2D_indices:
+                            values[ii]=values[ii].T
+                    else:
+                        log = logging.getLogger()
+                        msg = ("In {}, 1D-arrays and 2D-arrays could not be "
+                               "broadcast together. Save file in HDF5 format.")
+                        log.error(msg.format(self.name))
+                        self.root.should_stop.set()
+                
         if not self.array_values:
             new_line = '\t'.join([str(val) for val in values]) + '\n'
             self.file_object.write(new_line.encode('utf-8'))

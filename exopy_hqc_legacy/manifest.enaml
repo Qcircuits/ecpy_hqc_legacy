@@ -335,6 +335,9 @@ enamldef HqcLegacyManifest(PluginManifest):
                         interface = 'fit_resonance_tasks:FitAlazarInterface'
                         views = ['views.fit_resonance_views:FitAlazarInterfaceView']
                 Task:
+                    task = 'threshold_IQ_task:ThresholdIQTask'
+                    view = 'views.threshold_IQ_view:ThresholdIQView'
+                Task:
                     task = 'load_tasks:LoadArrayTask'
                     view = 'views.load_views:LoadArrayView'
                     Interface:

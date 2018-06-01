@@ -1,0 +1,72 @@
+# -*- coding: utf-8 -*-
+# -----------------------------------------------------------------------------
+# Copyright 2015-2018 by ExopyHqcLegacy Authors, see AUTHORS for more details.
+#
+# Distributed under the terms of the BSD license.
+#
+# The full license is in the file LICENCE, distributed with this software.
+# -----------------------------------------------------------------------------
+"""Views of the tasks operating on numpy.arrays.
+
+"""
+from enaml.layout.api import grid
+from enaml.widgets.api import (GroupBox, Label, Field, ObjectCombo, Splitter,
+                               SplitItem, Container)
+
+from exopy.utils.widgets.qt_completers import QtLineCompleter
+from exopy.tasks.api import EVALUATER_TOOLTIP, BaseTaskView
+
+enamldef ThresholdIQView(BaseTaskView): view:
+    """Widget for the array extrema task.
+
+    """
+
+    constraints << [grid([arrI_lab, arrQ_lab, theta_lab, thresh_lab, min_lab, max_lab, bin_lab],
+                         [arrI_val, arrQ_val, theta_val, thresh_val, min_val, max_val, bin_val])]
+
+    Label: arrI_lab:
+        text = 'Target array I'
+    QtLineCompleter: arrI_val:
+        hug_width = 'ignore'
+        text := task.target_array_I
+        entries_updater << task.list_accessible_database_entries
+        tool_tip = EVALUATER_TOOLTIP
+        
+    Label: arrQ_lab:
+        text = 'Target array Q'
+    QtLineCompleter: arrQ_val:
+        hug_width = 'ignore'
+        text := task.target_array_Q
+        entries_updater << task.list_accessible_database_entries
+        tool_tip = EVALUATER_TOOLTIP
+
+    Label: theta_lab:
+        text = 'Theta IQ'
+    Field: theta_val:
+        hug_width = 'ignore'
+        text := task.theta
+
+    Label: thresh_lab:
+        text = 'Threshold'
+    Field: thresh_val:
+        hug_width = 'ignore'
+        text := task.thresh
+        
+    Label: min_lab:
+        text = 'Min histogram'
+    Field: min_val:
+        hug_width = 'ignore'
+        text := task.min_hist
+    
+    Label: max_lab:
+        text = 'Max histogram'
+    Field: max_val:
+        hug_width = 'ignore'
+        text := task.max_hist
+    
+    Label: bin_lab:
+        text = 'Bins'
+    Field: bin_val:
+        hug_width = 'ignore'
+        text := task.bin_hist
+

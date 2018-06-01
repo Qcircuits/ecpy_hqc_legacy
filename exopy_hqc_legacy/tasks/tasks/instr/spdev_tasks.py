@@ -80,7 +80,6 @@ class DemodSPTask(InstrumentTask):
 
         """
         test, traceback = super(DemodSPTask, self).check(*args, **kwargs)
-
         if not test:
             return test, traceback
 
@@ -143,8 +142,9 @@ class DemodSPTask(InstrumentTask):
         records_number *= num_loop
         delay = self.format_and_eval_string(self.delay)*1e-9
         duration = self.format_and_eval_string(self.duration)*1e-9
+        print(duration)
         sampling_rate = self.format_and_eval_string(self.sampling_rate)
-
+        print(sampling_rate)
         channels = (self.ch1_enabled, self.ch2_enabled)
 
         traces = self.driver.get_traces(channels, duration, delay,
@@ -215,12 +215,19 @@ class DemodSPTask(InstrumentTask):
             self.write_in_database('Chc_Q', chc_q_av)
             if self.ch1_trace:
                 ch1 = traces[0]
-                ntraces1, _ = np.shape(ch1)
+                
+                # Remove points that do not belong to a full period.
                 samples_per_period = int(sampling_rate/freq)
+                samples_per_trace = int(ch1.shape[-1])
+                if (samples_per_trace % samples_per_period) != 0:
+                    extra = samples_per_trace % samples_per_period
+                    ch1 = ch1.T[:-extra].T
+                    
+                ntraces1, _ = np.shape(ch1)
 
                 samples_per_trace = int(ch1.shape[-1])
-                ch1_c1 = ch1*cosin
-                ch1_s1 = ch1*sinus
+                ch1_c1 = ch1*cosin[:samples_per_trace]
+                ch1_s1 = ch1*sinus[:samples_per_trace]
 
                 # We crunch a single dimension to compute I and Q per period
                 shape = (int(ntraces1/num_loop), num_loop,
@@ -231,19 +238,27 @@ class DemodSPTask(InstrumentTask):
                 ch1_i_t = 2*np.mean(ch1_c1, axis=3)
                 ch1_s1 = ch1_s1.reshape(shape)
                 ch1_q_t = 2*np.mean(ch1_s1, axis=3)
+                
+                print('before over ch2'+str(ch1_q_t.shape))
 
                 ch1_c_t = ch1_i_t + 1j*ch1_q_t
                 chc_c_t = np.swapaxes(np.swapaxes(ch1_c_t, 0, 2)/ch2_c.T, 0, 2)
                 chc_i_t = np.real(chc_c_t)
                 chc_q_t = np.imag(chc_c_t)
+                
+                print('after over ch2'+str(chc_q_t.shape))
 
                 if not avg_aft_demod:
-                    chc_i_t_av = np.swapaxes(chc_i_t, 0, 1)[0]
-                    chc_q_t_av = np.swapaxes(chc_q_t, 0, 1)[0]
+                    chc_i_t_av = chc_i_t
+                    chc_q_t_av = chc_q_t
+                    #RL modified 20180530
+#                    chc_i_t_av = np.swapaxes(chc_i_t, 0, 1)[0]
+#                    chc_q_t_av = np.swapaxes(chc_q_t, 0, 1)[0]
                 else:
                     chc_i_t_av = np.mean(chc_i_t, axis=0)
                     chc_q_t_av = np.mean(chc_q_t, axis=0)
-
+                
+                print('chc_q_t_av'+str(chc_q_t_av.shape))
                 self.write_in_database('Chc_I_trace', chc_i_t_av)
                 self.write_in_database('Chc_Q_trace', chc_q_t_av)
 
