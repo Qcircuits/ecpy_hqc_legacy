@@ -17,7 +17,7 @@ from enaml.widgets.api import (GroupBox, Label, Field, ObjectCombo, CheckBox,
                                Container)
 from enaml.layout.api import grid, vbox, hbox, factory
 
-from exopy.tasks.api import EVALUATER_TOOLTIP
+from exopy.tasks.api import (EVALUATER_TOOLTIP, FORMATTER_TOOLTIP)
 from exopy.utils.widgets.qt_completers import QtLineCompleter
 from ...base_instr_view import InstrView
 
@@ -30,7 +30,7 @@ enamldef DemodSpView(InstrView): view:
                     grid([instr_label, traces, after, duration, average, num_loop],
                          [instr_selection, traces_val, after_val,
                           duration_val, average_val, num_loop_val]),
-                    hbox(demod1,demod2)),
+                    hbox(demod1,demod2), grid([use_mode, folder, file], [none, path, filename])),
                     demod1.width == demod2.width]
 
     Label: traces:
@@ -80,10 +80,15 @@ enamldef DemodSpView(InstrView): view:
 
     GroupBox: demod1:
         title = 'Channel 1 demodulation settings'
-        constraints = [vbox(hbox(en1, tr1), hbox(dfreq1, dfreq1_val))]
+        constraints = [vbox(hbox(en1, lab_bins, val_bins, tr1), hbox(dfreq1, dfreq1_val))]
         CheckBox: en1:
             text = 'Enable channel'
             checked := task.ch1_enabled
+        Label: lab_bins:
+            text = 'Bin periods chc_traces'
+        Field: val_bins:
+            text := task.bins
+            enabled << task.ch1_trace
         CheckBox: tr1:
             text = 'Keep trace'
             checked := task.ch1_trace
@@ -94,15 +99,20 @@ enamldef DemodSpView(InstrView): view:
             text := task.freq_1
             enabled << task.ch1_enabled
 
-    GroupBox: demod2:
+    GroupBox: demod2: 
         title = 'Channel 2 demodulation settings'
-        constraints = [vbox(hbox(en2, ref2, tr2), hbox(dfreq2, dfreq2_val))]
+        constraints = [vbox(hbox(en2, title_mode2, mode2, tr2), hbox(dfreq2, dfreq2_val))]
         CheckBox: en2:
             text = 'Enable channel'
             checked := task.ch2_enabled
-        CheckBox: ref2:
-            text = 'Use as ref'
-            checked := task.ref2
+        Label: title_mode2:
+            text = 'Mode for ch2'
+        ObjectCombo: mode2:
+            items << list(task.get_member('mode2').items)
+            selected := task.mode2
+            tool_tip = ("Indpdt: ch2 is an independent signal\n"
+                        "Ref: ch2 is used as a reference for ch1 \n"
+                        "Q: ch2 is the Q component of the signal. ch1 is the I component")
             enabled << (task.ch2_enabled and task.ch1_enabled)
         CheckBox: tr2:
             text = 'Keep trace'
@@ -113,3 +123,24 @@ enamldef DemodSpView(InstrView): view:
         Field: dfreq2_val:
             text := task.freq_2
             enabled << task.ch2_enabled
+            
+    CheckBox: use_mode:
+        text = 'Use modeshape'
+        checked := task.use_modeshape
+    Label: none:
+        text = ''
+    Label: folder:
+        text = 'Folder'
+    QtLineCompleter: path:
+        text := task.folder_modeshape
+        entries_updater << task.list_accessible_database_entries
+        tool_tip = FORMATTER_TOOLTIP
+        enabled << task.use_modeshape
+    Label: file:
+        text = 'File'
+    QtLineCompleter: filename:
+        text := task.file_modeshape
+        entries_updater << task.list_accessible_database_entries
+        tool_tip = FORMATTER_TOOLTIP
+        enabled << task.use_modeshape
+    
