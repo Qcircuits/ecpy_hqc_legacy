@@ -21,6 +21,11 @@ CONVERSION_FACTORS = {'GHz': {'Hz': 1e9, 'kHz': 1e6, 'MHz': 1e3, 'GHz': 1},
                       'kHz': {'Hz': 1e3, 'kHz': 1, 'MHz': 1e-3, 'GHz': 1e-6},
                       'Hz': {'Hz': 1, 'kHz': 1e-3, 'MHz': 1e-6, 'GHz': 1e-9}}
 
+CONVERSION_FACTORS_TIME = {'ns': {'s': 1e-9, 'ms': 1e6, 'us': 1e3, 'ns': 1},
+                      'us': {'s': 1e6, 'ms': 1e3, 'us': 1, 'ns': 1e-3},
+                      'ms': {'s': 1e3, 'ms': 1, 'us': 1e-3, 'ns': 1e-6},
+                      's': {'s': 1, 'ms': 1e-3, 'us': 1e-6, 'ns': 1e-9}}
+
 
 LOOP_REAL = validators.SkipLoop(types=numbers.Real)
 
@@ -81,6 +86,63 @@ class SetRFFrequencyTask(InterfaceableTaskMixin, InstrumentTask):
 
         """
         return frequency*CONVERSION_FACTORS[self.unit][unit]
+
+class SetRFPeriodTask(InterfaceableTaskMixin, InstrumentTask):
+    """Set the period of the signal delivered by a RF source.
+
+    """
+    # Target period (dynamically evaluated)
+    period = Unicode().tag(pref=True, feval=LOOP_REAL)
+
+    # Unit of the period
+    unit = Enum('ns', 'us', 'ms', 's').tag(pref=True)
+
+    # Whether to start the source if its output is off.
+    auto_start = Bool(False).tag(pref=True)
+
+    database_entries = set_default({'period': 1.0, 'unit': 's'})
+
+    def check(self, *args, **kwargs):
+        """Add the unit into the database.
+
+        """
+        test, traceback = super(SetRFPeriodTask, self).check(*args,
+                                                                **kwargs)
+        self.write_in_database('unit', self.unit)
+
+        return test, traceback
+
+    def i_perform(self, period=None):
+        """Default interface for simple sources.
+
+        """
+        if self.auto_start:
+            self.driver.output = 'On'
+
+        if period is None:
+            period = self.format_and_eval_string(self.period)
+
+        self.driver.period_unit = self.unit
+        self.driver.period = period
+        self.write_in_database('period', period)
+
+    def convert(self, period, unit):
+        """ Convert a frequency to the given unit.
+
+        Parameters
+        ----------
+        frequency : float
+            Frequency expressed in the task unit
+
+        unit : {'Hz', 'kHz', 'MHz', 'GHz'}
+            Unit in which to express the result
+
+        Returns
+        -------
+        converted_frequency : float
+
+        """
+        return period*CONVERSION_FACTORS_TIME[self.unit][unit]
 
 
 class SetRFPowerTask(InterfaceableTaskMixin, InstrumentTask):

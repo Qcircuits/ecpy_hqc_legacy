@@ -54,6 +54,39 @@ enamldef RFFrequencyView(InstrView): view:
         checked := task.auto_start
         tool_tip = fill("Should the source be turned on automatically before "
                         "the measurement starts ?", 60)
+        
+enamldef RFPeriodView(InstrView): view:
+    """View for the RFPeriodTask.
+
+    """
+    #: Attribute set by the parent view if the task is embedded inside a
+    #: LoopTask
+    attr in_loop : bool = False
+
+    constraints << [factory(auto_grid_layout)]
+
+    Conditional:
+        condition << not in_loop
+        Label:
+            text = 'Period'
+        QtLineCompleter:
+            hug_width = 'ignore'
+            text := task.period
+            entries_updater << task.list_accessible_database_entries
+            tool_tip = EVALUATER_TOOLTIP
+
+    Label:
+        text = 'Unit'
+    ObjectCombo:
+        items << list(task.get_member('unit').items)
+        selected := task.unit
+
+    Label: auto_lab:
+        text = 'Autostart'
+    CheckBox: auto_val:
+        checked := task.auto_start
+        tool_tip = fill("Should the source be turned on automatically before "
+                        "the measurement starts ?", 60)
 
 
 enamldef RFPowerView(InstrView): view:
