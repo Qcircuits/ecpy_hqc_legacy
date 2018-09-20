@@ -183,9 +183,8 @@ class DemodSPTask(InstrumentTask):
         records_number *= num_loop
         delay = self.format_and_eval_string(self.delay)*1e-9
         duration = self.format_and_eval_string(self.duration)*1e-9
-        print(duration)
         sampling_rate = self.format_and_eval_string(self.sampling_rate)
-        print(sampling_rate)
+        bins = self.format_and_eval_string(self.bins)
         channels = (self.ch1_enabled, self.ch2_enabled)
 
         traces = self.driver.get_traces(channels, duration, delay,
@@ -199,7 +198,7 @@ class DemodSPTask(InstrumentTask):
             modeshape_array = np.loadtxt(full_path)
             _modeshape_real = modeshape_array.T[0]
             _modeshape_imag = modeshape_array.T[1]
-            print(_modeshape_imag[0])
+#            print(_modeshape_imag[0])
         def treat_channel_data(index):
             """Treat the data of a channel.
 
@@ -209,7 +208,8 @@ class DemodSPTask(InstrumentTask):
                                                        'freq_%d' % index))*1e6
 
             # Remove points that do not belong to a full period.
-            samples_per_period = self.bins*int(sampling_rate/np.abs(freq)) 
+#            print('bins = ' +str(int(bins)))
+            samples_per_period = int(bins)*int(sampling_rate/np.abs(freq)) 
             # bins added to decrease amount of data per time trace
             samples_per_trace = int(ch.shape[-1])
             if (samples_per_trace % samples_per_period) != 0:
@@ -240,12 +240,12 @@ class DemodSPTask(InstrumentTask):
 
                 ch_i_t = 2*np.mean(ch_av*cosin, axis=2)
                 ch_q_t = 2*np.mean(ch_av*sinus, axis=2)
-                print(ch_i_t.shape)
+#                print(ch_i_t.shape)
                 if self.use_modeshape:
                     ch_i_t = ch_i_t*modeshape_real-ch_q_t*modeshape_imag
                     ch_q_t = ch_q_t*modeshape_real+ch_i_t*modeshape_imag
-                    print('here lies ch_i_t :' +str(ch_i_t[0]))
-                print(ch_i_t.shape)
+#                    print('here lies ch_i_t :' +str(ch_i_t[0]))
+#                print(ch_i_t.shape)
                 ch_i = np.mean(ch_i_t, axis=1)
                 ch_q = np.mean(ch_q_t, axis=1)
                 
@@ -255,12 +255,12 @@ class DemodSPTask(InstrumentTask):
             else:
                 ch_i_t = 2*np.mean(ch*cosin, axis=3)
                 ch_q_t = 2*np.mean(ch*sinus, axis=3)
-                print(ch_i_t.shape)
+#                print(ch_i_t.shape)
                 if self.use_modeshape:
                     ch_i_t = ch_i_t*modeshape_real-ch_q_t*modeshape_imag
                     ch_q_t = ch_q_t*modeshape_real+ch_i_t*modeshape_imag
-                    print('here lies ch_i_t :' +str(ch_i_t[0]))
-                print(ch_i_t.shape)
+#                    print('here lies ch_i_t :' +str(ch_i_t[0]))
+#                print(ch_i_t.shape)
                 ch_i = np.mean(ch_i_t, axis=2)
                 ch_q = np.mean(ch_q_t, axis=2)
                 
@@ -302,7 +302,7 @@ class DemodSPTask(InstrumentTask):
                 chc_i_t = np.real(chc_c_t)
                 chc_q_t = np.imag(chc_c_t)
                 
-                print('after over ch2'+str(chc_q_t.shape))
+#                print('after over ch2'+str(chc_q_t.shape))
 
                 if avg_aft_demod: 
                     chc_i_t_av = np.mean(chc_i_t, axis=0)
@@ -311,7 +311,7 @@ class DemodSPTask(InstrumentTask):
                     chc_i_t_av = chc_i_t
                     chc_q_t_av = chc_q_t
                 
-                print('chc_q_t_av'+str(chc_q_t_av.shape))
+#                print('chc_q_t_av'+str(chc_q_t_av.shape))
                 self.write_in_database('Chc_I_trace', chc_i_t_av)
                 self.write_in_database('Chc_Q_trace', chc_q_t_av)
                 
@@ -339,7 +339,7 @@ class DemodSPTask(InstrumentTask):
                     chc_i_t_av = chc_i_t
                     chc_q_t_av = chc_q_t
                 
-                print('chc_q_t_av'+str(chc_q_t_av.shape))
+#                print('chc_q_t_av'+str(chc_q_t_av.shape))
                 self.write_in_database('Chc_I_trace', chc_i_t_av)
                 self.write_in_database('Chc_Q_trace', chc_q_t_av)
 
@@ -377,7 +377,7 @@ class DemodSPTask(InstrumentTask):
         """Update the database entries based on the trace setting.
 
         """
-        print(self.bins)
+#        print(self.bins)
         if old:
             self.bins = '1'
         if new and not self.ch1_enabled:
@@ -386,7 +386,7 @@ class DemodSPTask(InstrumentTask):
         if (self.mode2=='Ref' or self.mode2=='Q') or self.mode2=='Q':
             self._update_entries(new, {'Chc_I_trace': np.array([0, 1]),
                                        'Chc_Q_trace': np.array([0, 1])})
-        print(self.bins)
+#        print(self.bins)
 
     def _post_setattr_ch2_trace(self, old, new):
         """Update the database entries based on the trace settings.

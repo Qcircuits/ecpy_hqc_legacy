@@ -71,14 +71,14 @@ class Alazar935x(DllInstrument):
 
         board.inputControl(ats.CHANNEL_A,
                            ats.AC_COUPLING,
-                           ats.INPUT_RANGE_PM_200_MV,
+                           ats.INPUT_RANGE_PM_400_MV,
                            ats.IMPEDANCE_50_OHM)
 
         board.setBWLimit(ats.CHANNEL_A, 0)
 
         board.inputControl(ats.CHANNEL_B,
                            ats.AC_COUPLING,
-                           ats.INPUT_RANGE_PM_100_MV,
+                           ats.INPUT_RANGE_PM_400_MV,
                            ats.IMPEDANCE_50_OHM)
 
         board.setBWLimit(ats.CHANNEL_B, 0)
@@ -105,7 +105,7 @@ class Alazar935x(DllInstrument):
                              0)
 
     def get_traces(self, channels, duration, delay, records_per_capture,
-                   retry=True, average=False):
+                   loop_number, retry=True, average=False):
         """Acquire traces and average if asked to.
 
         Parameters
@@ -207,11 +207,9 @@ class Alazar935x(DllInstrument):
         board.startCapture()  # Start the acquisition
         buffers_completed = 0
 
-        if not average:
-            data = [np.empty((records_per_capture, samples_per_record))
+        data = [np.empty((records_per_capture, samples_per_record))
                     for i in range(channel_count)]
-        else:
-            data = [np.zeros(samples_per_record) for i in range(channel_count)]
+        records_per_loop = records_per_capture//loop_number
 
         while buffers_completed < buffers_per_acquisition:
 
@@ -231,15 +229,9 @@ class Alazar935x(DllInstrument):
             start = buffers_completed*records_per_buffer
             stop = start + records_per_buffer-records_to_ignore_val
             for i in range(channel_count):
-                if average:
-                    data[i] += np.sum(rbuf[i*records_per_buffer:
+                data[i][start:stop] = rbuf[i*records_per_buffer:
                                            (i+1)*records_per_buffer -
-                                           records_to_ignore_val], 0)
-                    data[i] /= records_per_capture
-                else:
-                    data[i][start:stop] = rbuf[i*records_per_buffer:
-                                               (i+1)*records_per_buffer -
-                                               records_to_ignore_val]
+                                           records_to_ignore_val]
 
             buffers_completed += 1
 
@@ -264,7 +256,8 @@ class Alazar935x(DllInstrument):
         for i, c in enumerate(channels_tuple):
             if c:
                 if average:
-                    data_f.append(np.array(data[i]))
+                    data_f.append(np.sum(data[i].reshape(records_per_loop, 
+                        loop_number, samples_per_record),0)/records_per_loop)
                 else:
                     data_f.append(data[i])
             else:
