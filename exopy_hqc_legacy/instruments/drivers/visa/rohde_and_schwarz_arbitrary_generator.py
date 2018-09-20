@@ -60,6 +60,7 @@ class RohdeSchwarzHMF2550(VisaInstrument):
                                                   caching_permissions,
                                                   auto_open)
         self.frequency_unit = 'Hz'
+        self.period_unit = 's'
         self.write_termination = '\n'
         self.read_termination = '\n'
 
@@ -93,7 +94,41 @@ class RohdeSchwarzHMF2550(VisaInstrument):
                 result[0] /= 1e3
             if abs(result[0] - value) > 1e-12:
                 mes = 'Instrument did not set correctly the frequency.'
-                raise InstrIOError(mes)
+                raise InstrIOError(mes)            
+
+    @instrument_property
+    @secure_communication()
+    def period(self):
+        """Period of the output signal.
+
+        """
+        period = self.ask_for_values('PER?')
+        if period:
+            return period[0]
+        else:
+            raise InstrIOError
+
+    @period.setter
+    @secure_communication()
+    def period(self, value):
+        """Period setter method.
+
+        """
+        unit = self.period_unit
+        self.write('PER {}{}'.format(value, unit))
+        result = self.ask_for_values('PER?')
+        print(result[0])
+        print(value)
+        if result:
+            if unit == 'ns':
+                result[0] /= 1e-9
+            elif unit == 'us':
+                result[0] /= 1e-6
+            elif unit == 'ms':
+                result[0] /= 1e-3
+            if abs(result[0] - value) > 1e-12:
+                mes = 'Instrument did not set correctly the period.'
+                raise InstrIOError(mes)    
 
     @instrument_property
     @secure_communication()
