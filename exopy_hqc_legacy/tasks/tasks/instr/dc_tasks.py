@@ -179,6 +179,9 @@ class SetDCCurrentTask(InterfaceableTaskMixin, InstrumentTask):
     #: Target value for the source (dynamically evaluated)
     target_value = Unicode().tag(pref=True,
                                  feval=validators.SkipLoop(types=numbers.Real))
+    
+    #: Chosen range
+    chosen_range = Enum('1 mA', '10 mA', '100 mA', '200 mA').tag(pref=True)
 
     #: Largest allowed step when changing the output of the instr.
     back_step = Float().tag(pref=True)
@@ -203,7 +206,8 @@ class SetDCCurrentTask(InterfaceableTaskMixin, InstrumentTask):
                 msg = ('Instrument assigned to task {} is not configured to '
                        'output a current')
                 raise ValueError(msg.format(self.name))
-
+            
+        setattr(self.driver, 'current_range', self.chosen_range)
         setter = lambda value: setattr(self.driver, 'current', value)
         current_value = getattr(self.driver, 'current')
 

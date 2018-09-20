@@ -111,6 +111,12 @@ enamldef SetDcCurrentView(InstrView): view:
             entries_updater << task.list_accessible_database_entries
             tool_tip = EVALUATER_TOOLTIP
 
+    Label:
+        text = 'Range'
+    ObjectCombo:
+        items << list(task.get_member('chosen_range').items)
+        selected := task.chosen_range
+
     Label: step:
         text = 'Back step (A)'
     FloatField: step_val:
