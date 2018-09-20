@@ -802,14 +802,31 @@ class AWG(VisaInstrument):
         """Deletes all user-defined waveforms from the currently loaded setup
 
         """
-        nb_waveforms = int(self.ask("WLIST:SIZE?")) - 25 #nb of user defined wf
+        try: 
+            nb_waveforms = int(self.ask("WLIST:SIZE?")) - 25 #nb of user defined wf
+        except Exception:
+            nb_waveforms = 0
         wait_time = 1+int(nb_waveforms/120)
         self.write('WLIST:WAVEFORM:DELETE ALL')
 
         print('Waiting {}s for {} waveforms to be deleted'.format(wait_time,
                                                                  nb_waveforms))
         time.sleep(wait_time)
+        
+    def get_waveform_name(self, index):
+        """Get the name of waveform at given index
 
+        """
+        waveform_name = self.ask("WLIST:NAME? %d"%index)
+
+        return waveform_name[1:-2]
+        
+    def get_waveform_number(self):
+        """Get the current number of waveforms in the waveform list
+        
+        """
+        nb_waveforms = int(self.ask("WLIST:SIZE?"))
+        return nb_waveforms
 
     def clear_all_sequences(self):
         """Clear the all sequences played by the AWG.

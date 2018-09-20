@@ -379,6 +379,10 @@ enamldef HqcLegacyManifest(PluginManifest):
                     instruments = ['exopy_hqc_legacy.Legacy.Keithley2000',
                                    'exopy_hqc_legacy.Legacy.Agilent34410A']
                 Task:
+                    task = 'rf_tasks:SetRFPeriodTask'
+                    view = 'views.rf_views:RFPeriodView'
+                    instruments = ['exopy_hqc_legacy.Legacy.RohdeSchwarzHMF2550']
+                Task:
                     task = 'rf_tasks:SetRFFrequencyTask'
                     view = 'views.rf_views:RFFrequencyView'
                     instruments = ['exopy_hqc_legacy.Legacy.AgilentPSG',

@@ -39,7 +39,7 @@ class RunAWGTask(InstrumentTask):
         if switch == 'On' or switch == 1:
             self.driver.send_event() #goes with a 'Event jump to' 1
             delay = self.format_and_eval_string(self.delay)
-            print(delay)
+#            print(delay)
             self.driver.run_awg(1, delay=delay) #delay needed when loading
                                                      #large nb of sequences
             self.write_in_database('output', 1)

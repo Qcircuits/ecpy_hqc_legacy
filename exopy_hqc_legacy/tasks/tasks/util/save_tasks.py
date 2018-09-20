@@ -624,10 +624,10 @@ class SaveFileHDF5Task(SimpleTask):
         f.flush()
 
     def check(self, *args, **kwargs):
-        """Check that all teh parameters are correct.
+        """Check that all the parameters are correct.
 
         """
-        err_path = self.get_error_path
+        err_path = self.get_error_path()
         test, traceback = super(SaveFileHDF5Task, self).check(*args, **kwargs)
         try:
             full_folder_path = self.format_string(self.folder)
