@@ -451,6 +451,91 @@ class AWG(VisaInstrument):
                                   caching_permissions, auto_open)
         self.channels = {}
         self.lock = Lock()
+        
+        self.AWG_FILE_FORMAT_HEAD = {
+        'SAMPLING_RATE': 'd',    # d
+        'REPETITION_RATE': 'd',    # # NAME?
+        'HOLD_REPETITION_RATE': 'h',    # True | False
+        'CLOCK_SOURCE': 'h',    # Internal | External
+        'REFERENCE_SOURCE': 'h',    # Internal | External
+        'EXTERNAL_REFERENCE_TYPE': 'h',    # Fixed | Variable
+        'REFERENCE_CLOCK_FREQUENCY_SELECTION': 'h',
+        'REFERENCE_MULTIPLIER_RATE': 'h',    #
+        'DIVIDER_RATE': 'h',   # 1 | 2 | 4 | 8 | 16 | 32 | 64 | 128 | 256
+        'TRIGGER_SOURCE': 'h',    # Internal | External
+        'INTERNAL_TRIGGER_RATE': 'd',    #
+        'TRIGGER_INPUT_IMPEDANCE': 'h',    # 50 ohm | 1 kohm
+        'TRIGGER_INPUT_SLOPE': 'h',    # Positive | Negative
+        'TRIGGER_INPUT_POLARITY': 'h',    # Positive | Negative
+        'TRIGGER_INPUT_THRESHOLD': 'd',    #
+        'EVENT_INPUT_IMPEDANCE': 'h',    # 50 ohm | 1 kohm
+        'EVENT_INPUT_POLARITY': 'h',    # Positive | Negative
+        'EVENT_INPUT_THRESHOLD': 'd',
+        'JUMP_TIMING': 'h',    # Sync | Async
+        'INTERLEAVE': 'h',    # On |  This setting is stronger than .
+        'ZEROING': 'h',    # On | Off
+        'COUPLING': 'h',    # The Off | Pair | All setting is weaker than .
+        'RUN_MODE': 'h',    # Continuous | Triggered | Gated | Sequence
+        'WAIT_VALUE': 'h',    # First | Last
+        'RUN_STATE': 'h',    # On | Off
+        'INTERLEAVE_ADJ_PHASE': 'd',
+        'INTERLEAVE_ADJ_AMPLITUDE': 'd',
+        }
+        
+        self.AWG_FILE_FORMAT_CHANNEL = {
+        # Include NULL.(Output Waveform Name for Non-Sequence mode)
+        'OUTPUT_WAVEFORM_NAME_N': 's',
+        'CHANNEL_STATE_N': 'h',  # On | Off
+        'ANALOG_DIRECT_OUTPUT_N': 'h',  # On | Off
+        'ANALOG_FILTER_N': 'h',  # Enum type.
+        'ANALOG_METHOD_N': 'h',  # Amplitude/Offset, High/Low
+        # When the Input Method is High/Low, it is skipped.
+        'ANALOG_AMPLITUDE_N': 'd',
+        # When the Input Method is High/Low, it is skipped.
+        'ANALOG_OFFSET_N': 'd',
+        # When the Input Method is Amplitude/Offset, it is skipped.
+        'ANALOG_HIGH_N': 'd',
+        # When the Input Method is Amplitude/Offset, it is skipped.
+        'ANALOG_LOW_N': 'd',
+        'MARKER1_SKEW_N': 'd',
+        'MARKER1_METHOD_N': 'h',  # Amplitude/Offset, High/Low
+        # When the Input Method is High/Low, it is skipped.
+        'MARKER1_AMPLITUDE_N': 'd',
+        # When the Input Method is High/Low, it is skipped.
+        'MARKER1_OFFSET_N': 'd',
+        # When the Input Method is Amplitude/Offset, it is skipped.
+        'MARKER1_HIGH_N': 'd',
+        # When the Input Method is Amplitude/Offset, it is skipped.
+        'MARKER1_LOW_N': 'd',
+        'MARKER2_SKEW_N': 'd',
+        'MARKER2_METHOD_N': 'h',  # Amplitude/Offset, High/Low
+        # When the Input Method is High/Low, it is skipped.
+        'MARKER2_AMPLITUDE_N': 'd',
+        # When the Input Method is High/Low, it is skipped.
+        'MARKER2_OFFSET_N': 'd',
+        # When the Input Method is Amplitude/Offset, it is skipped.
+        'MARKER2_HIGH_N': 'd',
+        # When the Input Method is Amplitude/Offset, it is skipped.
+        'MARKER2_LOW_N': 'd',
+        'DIGITAL_METHOD_N': 'h',  # Amplitude/Offset, High/Low
+        # When the Input Method is High/Low, it is skipped.
+        'DIGITAL_AMPLITUDE_N': 'd',
+        # When the Input Method is High/Low, it is skipped.
+        'DIGITAL_OFFSET_N': 'd',
+        # When the Input Method is Amplitude/Offset, it is skipped.
+        'DIGITAL_HIGH_N': 'd',
+        # When the Input Method is Amplitude/Offset, it is skipped.
+        'DIGITAL_LOW_N': 'd',
+        'EXTERNAL_ADD_N': 'h',  # AWG5000 only
+        'PHASE_DELAY_INPUT_METHOD_N':   'h',  # Phase/DelayInme/DelayInints
+        'PHASE_N': 'd',  # When the Input Method is not Phase, it is skipped.
+        # When the Input Method is not DelayInTime, it is skipped.
+        'DELAY_IN_TIME_N': 'd',
+        # When the Input Method is not DelayInPoint, it is skipped.
+        'DELAY_IN_POINTS_N': 'd',
+        'CHANNEL_SKEW_N': 'd',
+        'DC_OUTPUT_LEVEL_N': 'd',  # V
+        }
 
     def reopen_connection(self):
         """Clear buffer on connection reseting.
@@ -505,7 +590,21 @@ class AWG(VisaInstrument):
         header = "WLIS:WAV:DATA '{}',0,{},".format(name, looplength)
         self._driver.write_binary_values(header, waveform, datatype='B')
         self.write('*WAI')
-
+        
+    @secure_communication()  
+    def send_load_awg_file(self, awg_file, filename = 'setup'):
+        """Command to send and load and .awg file into the AWG
+                awg_file = bytearray
+        
+        """      
+        name_str = 'MMEMory:DATA "{}",'.format(filename+'.awg').encode('ASCII')
+        size_str = ('#' + str(len(str(len(awg_file)))) + str(len(awg_file))).encode('ASCII')
+        mes = name_str + size_str + awg_file
+        self.write('MMEMory:CDIRectory "/Users/OEM/Documents"')
+#        mes = self._driver.read_raw()
+        self._driver.write_raw(mes)
+        self.write('AWGCONTROL:SRESTORE "{}"'.format(filename+'.awg'))
+        
     @secure_communication()
     def clear_sequence(self):
         """Command to delete the sequence

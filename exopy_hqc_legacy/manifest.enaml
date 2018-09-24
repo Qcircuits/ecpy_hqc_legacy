@@ -511,6 +511,10 @@ enamldef HqcLegacyManifest(PluginManifest):
                     view = 'views.run_awg_views:RunAWGView'
                     instruments = ['exopy_hqc_legacy.Legacy.AWG']
                 Task:
+                    task = 'transfer_awg_file_task:TransferAWGFileTask'
+                    view = 'views.transfer_awg_file_task_view:TransferAWGFileView'
+                    instruments = ['exopy_hqc_legacy.Legacy.AWG']
+                Task:
                     task = 'transfer_pulse_loop_task:TransferPulseLoopTask'
                     view = ('views.transfer_pulse_loop_task_view:'
                             'TransferPulseLoopView')
