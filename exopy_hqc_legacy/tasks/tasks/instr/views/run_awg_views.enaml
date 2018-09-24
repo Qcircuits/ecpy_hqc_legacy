@@ -40,7 +40,7 @@ enamldef RunAWGView(InstrView): view:
             hug_width = 'ignore'
             text := task.switch
             entries_updater << task.list_accessible_database_entries
-            tool_tip = EVALUATER_TOOLTIP
+            tool_tip = 'Should be On, Off or Event'
 
     Label: delay:
         text = 'Delay (s)'
