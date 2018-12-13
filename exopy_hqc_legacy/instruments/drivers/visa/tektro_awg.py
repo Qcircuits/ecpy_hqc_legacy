@@ -644,6 +644,13 @@ class AWG(VisaInstrument):
         """
         pos = self.ask('AWGC:SEQ:POS?')
         return(pos)
+        
+    @secure_communication()
+    def force_jump_to(self, pos):
+        """Make the sequencer jump to position pos
+
+        """
+        self.ask('SEQUENCE:JUMP:IMMEDIATE %d'%pos)
 
     @secure_communication()
     def set_repeat(self, position, repeat):

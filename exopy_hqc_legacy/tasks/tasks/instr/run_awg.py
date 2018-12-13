@@ -33,19 +33,36 @@ class RunAWGTask(InstrumentTask):
         """Default interface behavior.
 
         """
+        delay = self.format_and_eval_string(self.delay)
         if switch is None:
             switch = self.format_and_eval_string(self.switch)
 
         if switch == 'On' or switch == 1:
+            print('On')
             self.driver.send_event() #goes with a 'Event jump to' 1
-            delay = self.format_and_eval_string(self.delay)
 #            print(delay)
             self.driver.run_awg(1, delay=delay) #delay needed when loading
                                                      #large nb of sequences
             self.write_in_database('output', 1)
         elif switch == 'Event':
+            print('Event')
+            time.sleep(delay)
             self.driver.send_event()
+        elif switch == 'Rearm':
+            print('Rearm')
+            time.sleep(delay)
+            success=False
+            while not success:
+                self.driver.send_event()
+                pos = int(self.driver.ask_sequencer_pos())
+                print(pos)
+                if pos==1:
+                    success=True
+                print(success)
+            time.sleep(delay)
         else:
+            print('Off')
+            time.sleep(delay)
             self.driver.run_awg(0)
             self.write_in_database('output', 0)
         log = logging.getLogger(__name__)

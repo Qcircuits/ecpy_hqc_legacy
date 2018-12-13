@@ -292,49 +292,55 @@ class TransferAWGFileTask(InstrumentTask):
                 self.write_in_database(params[0]+'_loop', np.linspace(loop_start, loop_stop, loop_points))
             
             loop_values = np.moveaxis(np.array(np.meshgrid(*loops)),0,-1).reshape((-1,n_loops))
-            self.write_in_database('num_loop', len(loop_values))
-            
-            for nn, loop_value in enumerate(loop_values):
+        else:
+            loop_values = [1]
+        self.write_in_database('num_loop', len(loop_values))
+        for nn, loop_value in enumerate(loop_values):
+            if n_loops > 0: 
                 for ii, name_parameter in enumerate(name_parameters):
                     self.write_in_database(name_parameter, loop_value[ii])
-                for k, v in self.sequence_vars.items():
-                    seq.external_vars[k] = self.format_and_eval_string(v)
-    #            context.sequence_name = '{}_{}'.format(seq_name_0, nn+1) #RL replaced, caused bug         
-                context.sequence_name = '{}'.format(nn+first_index)
-                res, byteseq, repeat, infos, errors = context.compile_loop(seq, for_file = True, factor=False)
-                already_added = {}
-                is_first_ch = True
-                for ch_id in self.driver.defined_channels:
-                    if ch_id in byteseq:
-                        used_pos = []
-                        for pos, waveform in enumerate(byteseq[ch_id]):
-                            addr = id(waveform)
-                            if addr not in already_added:
-                                seq_name_transfered = context.sequence_name  + '_Ch{}'.format(ch_id) +\
-                                                    '_' + str(pos)
-                                packed_waveforms[seq_name_transfered] = waveform
-                                already_added[addr] = seq_name_transfered
+            for k, v in self.sequence_vars.items():
+                seq.external_vars[k] = self.format_and_eval_string(v)
+#            context.sequence_name = '{}_{}'.format(seq_name_0, nn+1) #RL replaced, caused bug         
+            context.sequence_name = '{}'.format(nn+first_index)
+            compilation = context.compile_loop(seq, for_file = True, factor=False)
+            if len(compilation)==5:
+                res, byteseq, repeat, infos, errors = compilation
+            else:
+                print(compilation)
+            already_added = {}
+            is_first_ch = True
+            for ch_id in self.driver.defined_channels:
+                if ch_id in byteseq:
+                    used_pos = []
+                    for pos, waveform in enumerate(byteseq[ch_id]):
+                        addr = id(waveform)
+                        if addr not in already_added:
+                            seq_name_transfered = context.sequence_name  + '_Ch{}'.format(ch_id) +\
+                                                '_' + str(pos)
+                            packed_waveforms[seq_name_transfered] = waveform
+                            already_added[addr] = seq_name_transfered
+                        else:
+                            seq_name_transfered =  already_added[addr]
+
+                        if ch_id not in list(wfname_l.keys()):
+                            wfname_l[ch_id] = [seq_name_transfered]
+                        else:
+                            wfname_l[ch_id].append(seq_name_transfered)
+
+                        if (pos not in used_pos) and is_first_ch:
+                            nrep.append(repeat[pos])
+                            if  wait_trigger and used_pos == []:
+                                trig_wait.append(1)
                             else:
-                                seq_name_transfered =  already_added[addr]
-    
-                            if ch_id not in list(wfname_l.keys()):
-                                wfname_l[ch_id] = [seq_name_transfered]
+                                trig_wait.append(0)
+                            goto_state.append(0)
+                            if start_with_event:
+                                jump_to.append(1)
                             else:
-                                wfname_l[ch_id].append(seq_name_transfered)
-    
-                            if (pos not in used_pos) and is_first_ch:
-                                nrep.append(repeat[pos])
-                                if  wait_trigger and used_pos == []:
-                                    trig_wait.append(1)
-                                else:
-                                    trig_wait.append(0)
-                                goto_state.append(0)
-                                if start_with_event:
-                                    jump_to.append(1)
-                                else:
-                                    jump_to.append(0)
-                                used_pos.append(pos)
-                        is_first_ch = False
+                                jump_to.append(0)
+                            used_pos.append(pos)
+                    is_first_ch = False
 
         if start_with_event:
             trig_wait = [0] + trig_wait

@@ -521,3 +521,10 @@ enamldef HqcLegacyManifest(PluginManifest):
                     # Way to declare instrument dependencies without specifying
                     # any instrument.
                     instruments = [None]
+                Task:
+                    task = 'spike_tasks:SpikeGetTrace'
+                    view = ('views.spike_views:'
+                            'SpikeTraceView')
+                    # Way to declare instrument dependencies without specifying
+                    # any instrument.
+                    instruments = ['exopy_hqc_legacy.Legacy.SA124B']
