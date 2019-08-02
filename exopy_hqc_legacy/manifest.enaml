@@ -488,3 +488,8 @@ enamldef HqcLegacyManifest(PluginManifest):
                     task = 'run_awg:RunAWGTask'
                     view = 'views.run_awg_views:RunAWGView'
                     instruments = ['exopy_hqc_legacy.Legacy.AWG']
+                Task:
+                    task = 'transfer_awg_file_task:TransferAWGFileTask'
+                    view = 'views.transfer_awg_file_task_view:TransferAWGFileView'
+                    instruments = ['exopy_hqc_legacy.Legacy.AWG']
+
