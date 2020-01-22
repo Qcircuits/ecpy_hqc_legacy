@@ -91,7 +91,7 @@ class RohdeSchwarzSMB100A(VisaInstrument):
                 result[0] /= 1e6
             elif unit == 'KHz':
                 result[0] /= 1e3
-            if abs(result[0] - value) > 1e-12:
+            if abs(result[0] - value) > 1e-3:
                 mes = 'Instrument did not set correctly the frequency.'
                 raise InstrIOError(mes)
 

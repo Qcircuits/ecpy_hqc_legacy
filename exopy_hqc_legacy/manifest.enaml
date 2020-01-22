@@ -316,7 +316,7 @@ enamldef HqcLegacyManifest(PluginManifest):
                     driver = 'SA124B:SA124B'
                     manufacturer = 'SignalHound'
                     model = 'SA124B'
-
+                    
     Extension:
         id = 'exopy_hqc_legacy.tasks'
         point = 'exopy.tasks.declarations'
@@ -403,7 +403,7 @@ enamldef HqcLegacyManifest(PluginManifest):
                     view = 'views.rf_views:RFFrequencyView'
                     instruments = ['exopy_hqc_legacy.Legacy.AgilentPSG',
                                    'exopy_hqc_legacy.Legacy.AnritsuMG3694',
-                                   'exopy_hqc_legacy.Legacy.LabBrickLMS103',
+                                   'exopy_qcircuits.Qcircuits.LabBrickLMS103',
                                    'exopy_hqc_legacy.Legacy.RohdeSchwarzSMB100A',
                                    'exopy_hqc_legacy.Legacy.Anapico',
                                    'exopy_hqc_legacy.Legacy.RohdeSchwarzHMF2550']
@@ -425,7 +425,7 @@ enamldef HqcLegacyManifest(PluginManifest):
                     view = 'views.rf_views:RFPowerView'
                     instruments = ['exopy_hqc_legacy.Legacy.AgilentPSG',
                                    'exopy_hqc_legacy.Legacy.AnritsuMG3694',
-                                   'exopy_hqc_legacy.Legacy.LabBrickLMS103',
+                                   'exopy_qcircuits.Qcircuits.LabBrickLMS103',
                                    'exopy_hqc_legacy.Legacy.RohdeSchwarzSMB100A',
                                    'exopy_hqc_legacy.Legacy.Anapico']
                     metadata = {'loopable': True}

@@ -121,7 +121,7 @@ class Anapico(VisaInstrument):
         """
         self.write('POWER {}'.format(value))
         result = self.ask_for_values('POWER?')[0]
-        if abs(result - value) > 1e-12:
+        if abs(result - value) > 1e-2:
             raise InstrIOError('Instrument did not set correctly the power')
 
     @instrument_property
