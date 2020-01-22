@@ -281,6 +281,9 @@ class SaveFileTask(SimpleTask):
 
     #: Flag indicating whether or not initialisation has been performed.
     initialized = Bool(False)
+    
+    #
+    old_file = Unicode()
 
     #: Column indices identified as arrays. Use to save 2D arrays in
     #: concatenated columns.
@@ -296,7 +299,19 @@ class SaveFileTask(SimpleTask):
     def perform(self):
         """ Collect all data and write them to file.
 
-        """   
+        """
+        # these lines allow us to have multiple calls of save_file to different
+        # .csv in the same .ini
+        if not self.format_string(self.old_file):
+            self.initialized = False
+            self.old_file = self.format_string(self.filename)
+        elif self.format_string(self.old_file) == self.format_string(self.filename):
+            self.initialized = True
+        else:
+            self.file_object.close()
+            self.initialized = False
+            self.old_file = self.format_string(self.filename)
+            
         # Initialisation.
         if not self.initialized:
 
