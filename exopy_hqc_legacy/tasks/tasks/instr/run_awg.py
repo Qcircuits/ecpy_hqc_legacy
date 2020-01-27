@@ -23,7 +23,7 @@ class RunAWGTask(InstrumentTask):
 
     """
     #: Switch to choose the AWG run mode: on or off
-    switch = Unicode('Off').tag(pref=True, feval=validators.SkipLoop())
+    switch = Unicode('On').tag(pref=True, feval=validators.SkipLoop())
     delay = Unicode('0').tag(pref=True,
                                  feval=validators.SkipLoop(types=numbers.Real))
 
@@ -38,18 +38,18 @@ class RunAWGTask(InstrumentTask):
             switch = self.format_and_eval_string(self.switch)
 
         if switch == 'On' or switch == 1:
-            print('On')
+            #print('On')
             self.driver.send_event() #goes with a 'Event jump to' 1
 #            print(delay)
             self.driver.run_awg(1, delay=delay) #delay needed when loading
                                                      #large nb of sequences
             self.write_in_database('output', 1)
         elif switch == 'Event':
-            print('Event')
+            #print('Event')
             time.sleep(delay)
             self.driver.send_event()
         elif switch == 'Rearm':
-            print('Rearm')
+            #print('Rearm')
             time.sleep(delay)
             success=False
             while not success:
@@ -61,7 +61,7 @@ class RunAWGTask(InstrumentTask):
                 print(success)
             time.sleep(delay)
         else:
-            print('Off')
+            #print('Off')
             time.sleep(delay)
             self.driver.run_awg(0)
             self.write_in_database('output', 0)

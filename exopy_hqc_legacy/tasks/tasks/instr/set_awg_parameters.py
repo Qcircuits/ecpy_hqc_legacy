@@ -15,10 +15,9 @@ from atom.api import (Unicode, Int, List, Dict)
 
 from exopy.utils.atom_util import HasPrefAtom, tagged_members
 from exopy.utils.traceback import format_exc
-from exopy.tasks.api import (InstrumentTask, InterfaceableTaskMixin,
-                            InstrTaskInterface)
-
-# XXX unfinished
+from exopy.tasks.api import (InstrumentTask, validators)
+#from exopy.tasks.api import (InstrumentTask, InterfaceableTaskMixin,
+                            #InstrTaskInterface)
 
 class AnalogicalParameters(HasPrefAtom):
     """Parameters for one analogical port of the channel.

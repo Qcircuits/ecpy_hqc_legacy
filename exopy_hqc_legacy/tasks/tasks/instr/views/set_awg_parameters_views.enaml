@@ -66,7 +66,7 @@ enamldef SetAWGParametersView(BaseSetAWGParametersView): view:
         objects << list(i_views)
 
 
-TASK_VIEW_MAPPING = {'SetAWGParametersTask' : SetAWGParametersView}
+#TASK_VIEW_MAPPING = {'SetAWGParametersTask' : SetAWGParametersView}
 
 
 enamldef TektroAWGSetParametersView(Notebook):
@@ -197,5 +197,4 @@ enamldef TektroAWGSetParametersView(Notebook):
                                 text := ch_m2.parameter3
 
 
-INTERFACE_VIEW_MAPPING = {'TektroAWGParasInterface':
-                          [TektroAWGSetParametersView]}
+#INTERFACE_VIEW_MAPPING = {'TektroAWGParasInterface':[TektroAWGSetParametersView]}

@@ -387,7 +387,7 @@ enamldef HqcLegacyManifest(PluginManifest):
                     view = 'views.rf_views:RFFrequencyView'
                     instruments = ['exopy_hqc_legacy.Legacy.AgilentPSG',
                                    'exopy_hqc_legacy.Legacy.AnritsuMG3694',
-                                   'exopy_hqc_legacy.Legacy.LabBrickLMS103',
+                                   'exopy_qcircuits.Qcircuits.LabBrickLMS103',
                                    'exopy_hqc_legacy.Legacy.RohdeSchwarzSMB100A',
                                    'exopy_hqc_legacy.Legacy.Anapico',
                                    'exopy_hqc_legacy.Legacy.RohdeSchwarzHMF2550']
@@ -409,7 +409,7 @@ enamldef HqcLegacyManifest(PluginManifest):
                     view = 'views.rf_views:RFPowerView'
                     instruments = ['exopy_hqc_legacy.Legacy.AgilentPSG',
                                    'exopy_hqc_legacy.Legacy.AnritsuMG3694',
-                                   'exopy_hqc_legacy.Legacy.LabBrickLMS103',
+                                   'exopy_qcircuits.Qcircuits.LabBrickLMS103',
                                    'exopy_hqc_legacy.Legacy.RohdeSchwarzSMB100A',
                                    'exopy_hqc_legacy.Legacy.Anapico']
                     metadata = {'loopable': True}
@@ -432,7 +432,7 @@ enamldef HqcLegacyManifest(PluginManifest):
                     view = 'views.rf_views:RFSetOnOffView'
                     instruments = ['exopy_hqc_legacy.Legacy.AgilentPSG',
                                    'exopy_hqc_legacy.Legacy.AnritsuMG3694',
-                                   'exopy_hqc_legacy.Legacy.LabBrickLMS103',
+                                   'exopy_qcircuits.Qcircuits.LabBrickLMS103',
                                    'exopy_hqc_legacy.Legacy.RohdeSchwarzSMB100A',
                                    'exopy_hqc_legacy.Legacy.ZNB20',
                                    'exopy_hqc_legacy.Legacy.ZVA24',
