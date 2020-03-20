@@ -30,7 +30,7 @@ class SetRFFrequencyTask(InterfaceableTaskMixin, InstrumentTask):
 
     """
     # Target frequency (dynamically evaluated)
-    frequency = Unicode().tag(pref=True, feval=LOOP_REAL)
+    frequency = Unicode().tag(pref=True)
 
     # Unit of the frequency
     unit = Enum('GHz', 'MHz', 'kHz', 'Hz').tag(pref=True)
