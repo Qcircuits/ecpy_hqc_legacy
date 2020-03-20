@@ -331,9 +331,6 @@ enamldef HqcLegacyManifest(PluginManifest):
                 Task:
                     task = 'array_tasks:ArrayFindValueTask'
                     view = 'views.array_views:ArrayFindValueView'
-#                Task:
-#                    task = 'fit_resonance_tasks:FitResonanceTask'
-#                    view = 'views.fit_resonance_views:FitResonanceView'
                 Task:
                     task = 'fit_resonance_tasks:FitResonanceTask'
                     view = 'views.fit_resonance_views:FitResonanceView'
@@ -358,6 +355,9 @@ enamldef HqcLegacyManifest(PluginManifest):
                     Interface:
                         interface = 'load_tasks:CSVLoadInterface'
                         views = ['views.load_views:CSVLoadInterfaceView']
+                    Interface:
+                        interface = 'load_tasks:H5PYLoadInterface'
+                        views = ['views.load_views:H5PYLoadInterfaceView']
                     Interface:
                         interface = 'load_tasks:BinaryLoadInterface'
                         views = ['views.load_views:BinaryLoadInterfaceView']

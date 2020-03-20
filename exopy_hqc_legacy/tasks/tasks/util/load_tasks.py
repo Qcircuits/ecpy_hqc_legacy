@@ -12,6 +12,7 @@
 import os
 
 import numpy as np
+import h5py
 from atom.api import (Bool, Unicode, List, set_default)
 from past.builtins import basestring
 
@@ -145,6 +146,47 @@ class CSVLoadInterface(TaskInterface):
         """
         if new:
             self.task.write_in_database('array', _make_array(new))
+            
+class H5PYLoadInterface(TaskInterface):
+    """Interface used to load .h5 files.
+
+    """
+    #: Class attr used in the UI.
+    file_formats = ['H5PY']
+
+    def perform(self):
+        """Load a file stored in h5py format.
+
+        """
+        task = self.task
+        folder = task.format_string(task.folder)
+        filename = task.format_string(task.filename)
+        full_path = os.path.join(folder, filename)
+        
+
+        openfile = h5py.File(full_path,'r', libver='latest', swmr=True)
+        count_calls = openfile.attrs['count_calls'] 
+        data_dict = {}
+        for key in list(openfile.keys()):
+            # [:count_calls] is there to get around the way save h5 chunks the data
+            data_dict[key] = np.array(openfile[key][:count_calls])
+        openfile.close()
+
+        task.write_in_database('array', data_dict)
+
+    def check(self, *args, **kwargs):
+        """
+
+        """
+        task = self.task
+
+        try:
+            full_folder_path = task.format_string(task.folder)
+            filename = task.format_and_eval_string(task.filename)
+        except Exception:
+            return True, {}
+
+        return True, {}
             
 class BinaryLoadInterface(TaskInterface):
     """Interface used to load .npy files.

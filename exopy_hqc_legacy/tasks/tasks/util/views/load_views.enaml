@@ -232,3 +232,13 @@ enamldef BinaryLoadInterfaceView(Container):
 
     #: Reference to the root view.
     attr root
+    
+enamldef H5PYLoadInterfaceView(Container):
+    """View for the H5PY interface.
+
+    """
+    #: Reference to the interface.
+    attr interface
+
+    #: Reference to the root view.
+    attr root

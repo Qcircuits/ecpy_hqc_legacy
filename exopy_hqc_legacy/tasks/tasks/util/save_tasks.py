@@ -596,7 +596,7 @@ class SaveFileHDF5Task(SimpleTask):
             filename = self.format_string(self.filename)
             full_path = os.path.join(full_folder_path, filename)
             try:
-                self.file_object = _HDF5File(full_path, 'w')
+                self.file_object = _HDF5File(full_path, 'w', libver='latest')
             except IOError:
                 log = logging.getLogger()
                 msg = "In {}, failed to open the specified file."
@@ -637,6 +637,8 @@ class SaveFileHDF5Task(SimpleTask):
             f.attrs['count_calls'] = 0
             f.attrs['reshape_loop'] = self.reshape_loop
             f.attrs['ordered_keys'] = str(ordered_keys)
+            f.swmr_mode = True
+            
             f.flush()
 
             self.initialized = True
