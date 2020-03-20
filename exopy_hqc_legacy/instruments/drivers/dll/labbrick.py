@@ -13,7 +13,7 @@ This module defines drivers for LabBrick using DLL Library.
     LabBrickLMS103
 
 
-To read well the Dll of the LabBrick, Visual C++ Studio 2013 is needed.
+In order to use the LabBrick's DLL, Visual C++ Studio 2013 is needed.
 
 """
 from ..driver_tools import (InstrIOError, secure_communication,
@@ -21,6 +21,7 @@ from ..driver_tools import (InstrIOError, secure_communication,
 from ..dll_tools import DllLibrary, DllInstrument
 from inspect import cleandoc
 import ctypes
+import os
 
 
 class LabBrickDll(DllLibrary):
@@ -172,7 +173,8 @@ class LabBrickLMS103(DllInstrument):
         super(LabBrickLMS103, self).__init__(connection_info, caching_allowed,
                                              caching_permissions, auto_open)
 
-        self._dll = LabBrickDll(connection_info['lib_path'])
+        self._dll = LabBrickDll(os.path.join(connection_info['lib_dir'],
+                                             library))
 
 # load the ID of the device from the serial number
         serial = int(connection_info['instr_id'])
