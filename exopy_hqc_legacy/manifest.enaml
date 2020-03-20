@@ -507,6 +507,11 @@ enamldef HqcLegacyManifest(PluginManifest):
                                  'MultiChannelVoltageSourceIChannel']
                         instruments = ['exopy_hqc_legacy.Legacy.TinyBilt']
                 Task:
+                    task = 'dc_tasks:GetDCVoltageTask'
+                    view = 'views.dc_views:GetDcVoltageView'
+                    instruments = ['exopy_hqc_legacy.Legacy.Yokogawa7651']
+                    metadata = {'loopable': True}
+                Task:
                     task = 'dc_tasks:SetDCCurrentTask'
                     view = 'views.dc_views:SetDcCurrentView'
                     instruments = ['exopy_hqc_legacy.Legacy.YokogawaGS200']

@@ -22,6 +22,13 @@ from exopy_hqc_legacy.utils.layouts import auto_grid_layout
 from ...base_instr_view import InstrView
 
 
+enamldef GetDcVoltageView(InstrView): view:
+    """View for the SetDCVoltageTask.
+
+    """
+
+    constraints = [factory(auto_grid_layout)]
+
 enamldef SetDcVoltageView(InstrView): view:
     """View for the SetDCVoltageTask.
 
@@ -33,6 +40,7 @@ enamldef SetDcVoltageView(InstrView): view:
     constraints = [factory(auto_grid_layout),
                    (step.width == step_val.width) | 'weak',
                    (step_val.width == safe_val.width),
+                   (step_val.width == delta_val.width),
                    (step_val.width == delay_val.width)]
 
     Conditional:
@@ -62,6 +70,12 @@ enamldef SetDcVoltageView(InstrView): view:
     FloatField: safe_val:
         resist_width = 'ignore'
         value := task.safe_max
+        
+    Label: delta:
+        text = 'Safe Delta (V)'
+    FloatField: delta_val:
+        resist_width = 'ignore'
+        value := task.safe_delta
 
     Label: delay:
         text = 'Delay (s)'

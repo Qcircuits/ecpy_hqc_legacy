@@ -17,6 +17,30 @@ from atom.api import (Float, Value, Unicode, Int, set_default, Enum, Tuple)
 from exopy.tasks.api import (InstrumentTask, TaskInterface,
                             InterfaceableTaskMixin, validators)
 
+class GetDCVoltageTask(InstrumentTask):
+    """Get the current DC voltage of an instrument
+    """
+
+    parallel = set_default({'activated': False, 'pool': 'instr'})
+    database_entries = set_default({'voltage': 0.01})
+
+    def perform(self, value=None):
+        """Default interface.
+
+        """
+        if self.driver.owner != self.name:
+            self.driver.owner = self.name
+            if hasattr(self.driver, 'function') and\
+                    self.driver.function != 'VOLT':
+                msg = ('Instrument assigned to task {} is not configured to '
+                       'output a voltage')
+                raise ValueError(msg.format(self.name))
+
+        current_value = getattr(self.driver, 'voltage')
+        print('The current voltage is: {}'.format(current_value))
+        
+        self.write_in_database('voltage', float(current_value))
+
 
 class SetDCVoltageTask(InterfaceableTaskMixin, InstrumentTask):
     """Set a DC voltage to the specified value.
@@ -37,11 +61,14 @@ class SetDCVoltageTask(InterfaceableTaskMixin, InstrumentTask):
 
     #: Largest allowed voltage
     safe_max = Float(0.0).tag(pref=True)
+    
+    #: Largest allowed delta compared to current frequency
+    safe_delta = Float(0.0).tag(pref=True)
 
     #: Time to wait between changes of the output of the instr.
     delay = Float(0.01).tag(pref=True)
 
-    parallel = set_default({'activated': True, 'pool': 'instr'})
+    parallel = set_default({'activated': False, 'pool': 'instr'})
     database_entries = set_default({'voltage': 0.01})
 
     def i_perform(self, value=None):
@@ -60,7 +87,14 @@ class SetDCVoltageTask(InterfaceableTaskMixin, InstrumentTask):
         setattr(self.driver, 'voltage_range', self.chosen_range)
         setter = lambda value: setattr(self.driver, 'voltage', value)
         current_value = getattr(self.driver, 'voltage')
-
+        
+        value = self.format_and_eval_string(self.target_value)
+        #if safe_delta = 0 ignore
+        if self.safe_delta and abs(current_value-value) > self.safe_delta:
+            msg = ('Voltage asked for {} is too far away from the current voltage {}!')
+            raise ValueError(msg.format(value,current_value))
+            
+        print('Setting voltage to: {}'.format(value))
         self.smooth_set(value, setter, current_value)
 
     def smooth_set(self, target_value, setter, current_value):
