@@ -297,12 +297,24 @@ class SaveFileTask(SimpleTask):
         """ Collect all data and write them to file.
 
         """
+        # Enable saving to different files
+        filename = self.format_string(self.filename)
+        full_folder_path = self.format_string(self.folder)
+        # Normalize the path to be able to perform comparisons
+        full_path = os.path.realpath(os.path.join(full_folder_path, filename))
+
+        if not self.file_object:
+            self.initialized = False
+        elif self.file_object.name == full_path:
+            self.initialized = True
+        else:
+            self.file_object.close()
+            self.initialized = False
+
+        self.old_file = filename
+
         # Initialisation.
         if not self.initialized:
-
-            full_folder_path = self.format_string(self.folder)
-            filename = self.format_string(self.filename)
-            full_path = os.path.join(full_folder_path, filename)
             try:
                 self.file_object = open(full_path, 'wb')
             except IOError:
