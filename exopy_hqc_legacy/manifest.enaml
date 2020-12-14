@@ -514,7 +514,8 @@ enamldef HqcLegacyManifest(PluginManifest):
                 Task:
                     task = 'dc_tasks:SetDCCurrentTask'
                     view = 'views.dc_views:SetDcCurrentView'
-                    instruments = ['exopy_hqc_legacy.Legacy.YokogawaGS200']
+                    instruments = ['exopy_hqc_legacy.Legacy.YokogawaGS200',
+                                    'exopy_hqc_legacy.Legacy.Yokogawa7651']
                     metadata = {'loopable': True}
                 Task:
                     task = 'dc_tasks:SetDCFunctionTask'

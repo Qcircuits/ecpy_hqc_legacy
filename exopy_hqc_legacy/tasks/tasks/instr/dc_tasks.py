@@ -50,8 +50,7 @@ class SetDCVoltageTask(InterfaceableTaskMixin, InstrumentTask):
 
     """
     #: Target value for the source (dynamically evaluated)
-    target_value = Unicode().tag(pref=True,
-                                 feval=validators.SkipLoop(types=numbers.Real))
+    target_value = Unicode().tag(pref=True)
 
     #: Chosen range
     chosen_range = Enum('10 mV', '100 mV', '1 V', '10 V', '30 V').tag(pref=True)

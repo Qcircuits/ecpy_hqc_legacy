@@ -104,9 +104,12 @@ class CSVLoadInterface(TaskInterface):
                 else:
                     break
 
-        data = np.genfromtxt(full_path, comments=self.comments,
-                             delimiter=self.delimiter, names=self.names,
-                             skip_header=comment_lines)
+        #data = np.genfromtxt(full_path, comments=self.comments,
+        #                     delimiter=self.delimiter, names=self.names,
+        #                     skip_header=comment_lines)
+        data = np.loadtxt(full_path, comments=self.comments,
+                             delimiter=self.delimiter,
+                             skiprows=comment_lines)
 
         task.write_in_database('array', data)
 

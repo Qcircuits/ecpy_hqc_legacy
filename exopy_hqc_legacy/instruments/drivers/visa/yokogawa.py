@@ -349,6 +349,32 @@ class Yokogawa7651(VisaInstrument):
         # to avoid floating point rouding
         if abs(value - round(set_point, 9)) > 10**-9:
             raise InstrIOError('Instrument did not set correctly the voltage')
+    
+    @instrument_property
+    @secure_communication()
+    def current(self):
+        """Current getter method.
+
+        """
+        data = self.ask("OD")
+        current = float(data[4::])
+        if current is not None:
+            return current
+        else:
+            raise InstrIOError('Instrument did not return the voltage')
+
+    @current.setter
+    @secure_communication()
+    def current(self, set_point):
+        """Current setter method.
+
+        """
+        self.write("S{:+E}E".format(set_point))
+        data = self.ask("OD")
+        value = float(data[4::])
+        # to avoid floating point rouding
+        if abs(value - round(set_point, 9)) > 10**-9:
+            raise InstrIOError('Instrument did not set correctly the voltage')
 
     @instrument_property
     @secure_communication()

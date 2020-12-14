@@ -219,8 +219,8 @@ enamldef SaveFileHDF5View(BaseTaskView):
         GroupBox: folder:
 
             title = 'Directory'
-            constraints = [hbox(path, explore),
-                            align('v_center', path, explore)]
+            constraints = [hbox(path, explore,skipchk_lab,skipchk_val,newfile_lab,newfile_val),
+                            align('v_center', path, explore,skipchk_lab,skipchk_val,newfile_lab,newfile_val)]
 
             QtLineCompleter: path:
                 text := task.folder
@@ -235,6 +235,18 @@ enamldef SaveFileHDF5View(BaseTaskView):
                                     ).exec_()
                     if path:
                         task.folder = path
+            
+            Label: skipchk_lab:
+                text = 'Skip Checks'
+            CheckBox: skipchk_val:
+                checked := task.skip_checks
+                tool_tip = fill("Should the standard checks be skipped for this save instance?", 60)
+                
+            Label: newfile_lab:
+                text = 'New File'
+            CheckBox: newfile_val:
+                checked := task.new_file
+                tool_tip = fill("Should you create a new file every time the task is called?", 60)
 
         GroupBox: file:
 

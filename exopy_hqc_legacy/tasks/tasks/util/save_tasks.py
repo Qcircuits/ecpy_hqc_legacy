@@ -564,6 +564,12 @@ class SaveFileHDF5Task(SimpleTask):
     #: Do the data need to be reshape according to user shape
     reshape_loop = Bool(False).tag(pref=True)
     
+    #: For some measures it is useful to skip the checks for this task
+    skip_checks = Bool(False).tag(pref=True)
+    
+    #: For some measures it is useful to reinitialise the file each time the task is called
+    new_file = Bool(False).tag(pref=True)
+    
     #: Wanted shape of the user
     shape_loop = Unicode('()').tag(pref=True)
 
@@ -589,7 +595,7 @@ class SaveFileHDF5Task(SimpleTask):
             shape_loop = (calls_estimation,)
             shape_max = (None,)
         # Initialisation.
-        if not self.initialized:
+        if (not self.initialized) or self.new_file:
 
             self._formatted_labels = []
             full_folder_path = self.format_string(self.folder)
@@ -676,8 +682,13 @@ class SaveFileHDF5Task(SimpleTask):
         """Check that all the parameters are correct.
 
         """
+        
         err_path = self.get_error_path()
         test, traceback = super(SaveFileHDF5Task, self).check(*args, **kwargs)
+        
+        if self.skip_checks:
+            return test, traceback
+        
         try:
             full_folder_path = self.format_string(self.folder)
             filename = self.format_string(self.filename)
